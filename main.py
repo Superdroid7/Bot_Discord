@@ -41,31 +41,34 @@ async def poke(ctx, arg):
         print("error: ", e)
            
 @poke.error
-async def error_type(ctx, error):
-    if isinstance(error, commands.errors.MissingRequiredArgument):
-        await ctx.send("brother me tenes que pasar es un pokemon no un espacio en blanco")
-
-@bot.event
 async def on_message(message):
-    if message.author.bot == bot.user:  # Ignora mensajes del propio bot para evitar bucles
+    if message.author == bot.user:  # Ignora mensajes del propio bot para evitar bucles
         return
        
     if message.content.startswith(bot.command_prefix):
         await bot.process_commands(message)
         return
-       
+    
     palabras = message.content.split()
-    errores = []
+    palabras_corregidas = []
+    tiene_correcciones = False 
     for palabra in palabras:
-        limpia = "".join(c for c in palabra if c.isalnum()).lower()
-        if limpia:
-            correccion = spell(limpia)
-            if correccion and correccion != limpia:
-                errores.append(f"**{palabra}** -> *{correccion}*")
-    if len(errores) > 0 and len(errores) < 5:  
-        respuesta = f"oe {message.author.mention} parece que tenes algunos error ortografico: " + ", ".join(errores)
+        limpia_palabra = "".join(c for c in palabra if c.isalnum()).lower()  # Limpia la palabra (quita puntuación básica)
+        if limpia_palabra and limpia_palabra not in spell:  
+            correccion = spell.correction(limpia_palabra)  
+            if correccion and correccion != limpia_palabra:
+                palabras_corregidas.append(f"**{palabra}** -> *{correccion}*")
+                tiene_correcciones = True
+            else:
+                palabras_corregidas.append(palabra)
+        else:
+            palabras_corregidas.append(palabra)
+
+    if tiene_correcciones:
+        respuesta = f"oe {message.author.mention} parece que tenes algunos error ortografico, se sugiere la siguiente palabra: \n" + "\n".join(palabras_corregidas)
         await message.reply(respuesta)
-    await bot.process_commands(message) 
+    
+    await bot.process_commands(message)  # IMPORTANTE: Procesa comandos después, si los hay
 
 @bot.event
 async def on_ready():
