@@ -2,7 +2,6 @@ import os
 import discord
 from discord.ext import commands
 import requests
-import config
 from autocorrect import Speller 
 
 spell = Speller(lang='es') 
