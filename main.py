@@ -51,13 +51,14 @@ async def on_message(message):
     for palabra in palabras:
         limpia_palabra = "".join(c for c in palabra if c.isalnum()).lower()
         
-        # 1. Se eliminó 'limpia_palabra not in spell' para evitar el TypeError.
-        # 2. Ahora, si la palabra es válida, siempre se intenta obtener la corrección.
         if limpia_palabra:  
-            correccion = spell.correction(limpia_palabra)  
+            # CORRECCIÓN: Llamar a la instancia 'spell' directamente
+            correccion = spell(limpia_palabra)
             
-            # 3. La detección de un error ortográfico se basa en si la corrección es diferente a la palabra original.
+            # La detección de un error ortográfico se basa en si la corrección es diferente a la palabra original.
             if correccion and correccion != limpia_palabra:
+                # Utilizamos la palabra original 'palabra' para la visualización del usuario,
+                # pero la corrección 'correccion' que es la versión limpia y corregida.
                 palabras_corregidas.append(f"**{palabra}** -> *{correccion}*")
                 tiene_correcciones = True
             else:
