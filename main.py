@@ -42,8 +42,7 @@ async def poke(ctx, arg):
            
 @bot.event
 async def on_message(message):
-
-    if message.author == bot.user:
+    if message.author == bot.user:  # Ignora mensajes del propio bot
         return
        
     palabras = message.content.split()
@@ -51,8 +50,13 @@ async def on_message(message):
     tiene_correcciones = False 
     for palabra in palabras:
         limpia_palabra = "".join(c for c in palabra if c.isalnum()).lower()
-        if limpia_palabra and limpia_palabra not in spell:  
+        
+        # 1. Se eliminó 'limpia_palabra not in spell' para evitar el TypeError.
+        # 2. Ahora, si la palabra es válida, siempre se intenta obtener la corrección.
+        if limpia_palabra:  
             correccion = spell.correction(limpia_palabra)  
+            
+            # 3. La detección de un error ortográfico se basa en si la corrección es diferente a la palabra original.
             if correccion and correccion != limpia_palabra:
                 palabras_corregidas.append(f"**{palabra}** -> *{correccion}*")
                 tiene_correcciones = True
@@ -65,8 +69,6 @@ async def on_message(message):
         respuesta = f"oe {message.author.mention} parece que tenes algunos error ortografico, se sugiere la siguiente palabra: \n" + "\n".join(palabras_corregidas)
         await message.reply(respuesta)
     
-    # IMPORTANTE: Se llama a process_commands una sola vez al final
-    # para que los comandos (como $poke) sigan funcionando después de la revisión ortográfica.
     await bot.process_commands(message)
 
 @bot.event
