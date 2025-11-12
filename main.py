@@ -42,7 +42,7 @@ async def poke(ctx, arg):
            
 @bot.event
 async def on_message(message):
-    if message.author == bot.user:  # Ignora mensajes del propio bot
+    if message.author.bot:
         return
        
     palabras = message.content.split()
@@ -57,8 +57,6 @@ async def on_message(message):
             
             # La detección de un error ortográfico se basa en si la corrección es diferente a la palabra original.
             if correccion and correccion != limpia_palabra:
-                # Utilizamos la palabra original 'palabra' para la visualización del usuario,
-                # pero la corrección 'correccion' que es la versión limpia y corregida.
                 palabras_corregidas.append(f"**{palabra}** -> *{correccion}*")
                 tiene_correcciones = True
             else:
