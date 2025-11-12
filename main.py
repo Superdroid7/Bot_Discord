@@ -5,7 +5,7 @@ import requests
 from autocorrect import Speller 
 
 spell = Speller(lang='es') 
-intents = discord.Intents.default()  # Declaro la intención de acceder a diferentes eventos de la API de Discord
+intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix="$", intents=intents)
@@ -40,20 +40,17 @@ async def poke(ctx, arg):
     except Exception as e:
         print("error: ", e)
            
-@poke.error
+@bot.event
 async def on_message(message):
-    if message.author == bot.user:  # Ignora mensajes del propio bot para evitar bucles
+
+    if message.author == bot.user:
         return
        
-    if message.content.startswith(bot.command_prefix):
-        await bot.process_commands(message)
-        return
-    
     palabras = message.content.split()
     palabras_corregidas = []
     tiene_correcciones = False 
     for palabra in palabras:
-        limpia_palabra = "".join(c for c in palabra if c.isalnum()).lower()  # Limpia la palabra (quita puntuación básica)
+        limpia_palabra = "".join(c for c in palabra if c.isalnum()).lower()
         if limpia_palabra and limpia_palabra not in spell:  
             correccion = spell.correction(limpia_palabra)  
             if correccion and correccion != limpia_palabra:
@@ -68,10 +65,12 @@ async def on_message(message):
         respuesta = f"oe {message.author.mention} parece que tenes algunos error ortografico, se sugiere la siguiente palabra: \n" + "\n".join(palabras_corregidas)
         await message.reply(respuesta)
     
-    await bot.process_commands(message)  # IMPORTANTE: Procesa comandos después, si los hay
+    # IMPORTANTE: Se llama a process_commands una sola vez al final
+    # para que los comandos (como $poke) sigan funcionando después de la revisión ortográfica.
+    await bot.process_commands(message)
 
 @bot.event
 async def on_ready():
     print(f"estamos meloskis {bot.user}")
 
-bot.run(os.getenv('TOKEN')) #para leer el token en railway
+bot.run(os.getenv('TOKEN'))
