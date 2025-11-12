@@ -55,26 +55,17 @@ async def on_message(message):
         return
        
     palabras = message.content.split()
-    palabras_corregidas = []
-    tiene_correcciones = False
-
+    errores = []
     for palabra in palabras:
-        limpia_palabra = "".join(c for c in palabra if c.isalnum()).lower()  # Limpia la palabra (quita puntuación básica)
-        if limpia_palabra:
-            correccion = spell(limpia_palabra)
-            if correccion and correccion != limpia_palabra:
-                palabras_corregidas.append(f"**{palabra}** -> *{correccion}*")
-                tiene_correcciones = True
-            else:
-                palabras_corregidas.append(palabra)
-        else:
-            palabras_corregidas.append(palabra)
-
-    if tiene_correcciones:
-        respuesta = f"oe {message.author.mention} parece que tenes algunos error ortografico, se sugiere la siguiente palabra: \n" + "\n".join(palabras_corregidas)
+        limpia = "".join(c for c in palabra if c.isalnum()).lower()
+        if limpia:
+            correccion = spell(limpia)
+            if correccion and correccion != limpia:
+                errores.append(f"**{palabra}** -> *{correccion}*")
+    if len(errores) > 0 and len(errores) < 5:  
+        respuesta = f"oe {message.author.mention} parece que tenes algunos error ortografico: " + ", ".join(errores)
         await message.reply(respuesta)
-
-    await bot.process_commands(message)  # IMPORTANTE: Procesa comandos después, si los hay
+    await bot.process_commands(message) 
 
 @bot.event
 async def on_ready():
