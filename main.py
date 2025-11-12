@@ -1,3 +1,4 @@
+import os
 import discord
 from discord.ext import commands
 import requests
@@ -80,4 +81,4 @@ async def on_message(message):
 async def on_ready():
     print(f"estamos meloskis {bot.user}")
 
-bot.run(config.TOKEN)
+bot.run(os.getenv('TOKEN')) #para leer el token en railway
